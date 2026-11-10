@@ -1,0 +1,6 @@
+{
+  "name": "LUMORA SKINCARE - Haute Botanical Formulations",
+  "description": "World-class luxury skincare e-commerce boutique featuring cinematic 3D product showcases, clinical botanical actives for South Asian skin barriers, seamless Pakistani checkout, and bespoke WhatsApp ordering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

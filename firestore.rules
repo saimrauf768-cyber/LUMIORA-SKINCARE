@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Deny-All Catch-All Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- REUSABLE HARDENED SECURITY HELPERS ---
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email is string && request.auth.token.email == "saimrauf768@gmail.com")
+      );
+    }
+
+    // --- 1. PRODUCTS COLLECTION ---
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- 2. ORDERS COLLECTION ---
+    match /orders/{orderId} {
+      // Individual customer can look up their own order by exact reference ID
+      allow get: if isValidId(orderId);
+      // Only admins can query / list all customer orders (prevents scraping PII)
+      allow list: if isAdmin();
+      // Any client can create an order with valid schema
+      allow create: if isValidId(orderId) &&
+        incoming().id == orderId &&
+        incoming().customerName is string &&
+        incoming().customerName.size() <= 128 &&
+        incoming().phone is string &&
+        incoming().phone.size() <= 32 &&
+        incoming().address is string &&
+        incoming().address.size() <= 512 &&
+        incoming().city is string &&
+        incoming().total is number &&
+        incoming().total >= 0 &&
+        incoming().items is list &&
+        incoming().items.size() > 0 &&
+        incoming().items.size() <= 50;
+      // Only admin can update order statuses or delete
+      allow update, delete: if isAdmin();
+    }
+
+    // --- 3. REVIEWS COLLECTION ---
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isValidId(reviewId) &&
+        incoming().id == reviewId &&
+        incoming().productId is string &&
+        incoming().author is string &&
+        incoming().author.size() <= 128 &&
+        incoming().rating is number &&
+        incoming().rating >= 1 &&
+        incoming().rating <= 5 &&
+        incoming().comment is string &&
+        incoming().comment.size() <= 1024;
+      allow update, delete: if isAdmin();
+    }
+
+    // --- 4. COUPONS COLLECTION ---
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- 5. STORE SETTINGS COLLECTION ---
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- 6. CONTACT INQUIRIES ---
+    match /inquiries/{inquiryId} {
+      allow create: if isValidId(inquiryId) &&
+        incoming().name is string &&
+        incoming().name.size() <= 128 &&
+        incoming().email is string &&
+        incoming().email.size() <= 128 &&
+        incoming().message is string &&
+        incoming().message.size() <= 2048;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // --- 7. NEWSLETTER SUBSCRIBERS ---
+    match /subscribers/{subscriberId} {
+      allow create: if isValidId(subscriberId) &&
+        incoming().email is string &&
+        incoming().email.size() <= 128;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // --- 8. ADMINS COLLECTION ---
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

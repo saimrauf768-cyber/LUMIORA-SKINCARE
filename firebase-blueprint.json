@@ -1,0 +1,180 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Luxury skincare product catalog item with pricing, inventory, formulation, and 3D attributes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sku": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "enum": ["Serums", "Moisturizers", "Cleansers", "Sunscreens", "Toners", "Bundles"] },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "size": { "type": "string", "maxLength": 64 },
+        "skinType": { "type": "string", "maxLength": 128 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "ingredients": { "type": "array" },
+        "benefits": { "type": "array" },
+        "howToUse": { "type": "string", "maxLength": 1024 },
+        "image": { "type": "string", "maxLength": 1024 },
+        "secondaryImage": { "type": "string", "maxLength": 1024 },
+        "rating": { "type": "number" },
+        "reviewsCount": { "type": "number" },
+        "isFeatured": { "type": "boolean" },
+        "isBestSeller": { "type": "boolean" },
+        "isNewArrival": { "type": "boolean" },
+        "model3DType": { "type": "string", "enum": ["serum", "cream", "cleanser", "sunscreen"] }
+      },
+      "required": ["id", "sku", "name", "category", "price", "stock", "description", "image"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase transaction record with delivery address, items breakdown, payment mode and courier tracking.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "email": { "type": "string", "maxLength": 128 },
+        "address": { "type": "string", "maxLength": 512 },
+        "city": { "type": "string", "maxLength": 64 },
+        "deliveryNotes": { "type": "string", "maxLength": 512 },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "shipping": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["COD", "Bank Transfer", "Easypaisa", "JazzCash", "Card"] },
+        "paymentStatus": { "type": "string", "enum": ["Pending", "Paid", "Failed"] },
+        "status": { "type": "string", "enum": ["Processing", "Dispatched", "Delivered", "Cancelled"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "trackingNumber": { "type": "string", "maxLength": 64 },
+        "courier": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "customerName", "phone", "address", "city", "items", "total", "paymentMethod", "status"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Verified client product assessment, star score and skin feedback.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "productId": { "type": "string", "maxLength": 128 },
+        "author": { "type": "string", "maxLength": 128 },
+        "city": { "type": "string", "maxLength": 64 },
+        "rating": { "type": "number" },
+        "date": { "type": "string", "maxLength": 64 },
+        "comment": { "type": "string", "maxLength": 1024 },
+        "verifiedPurchase": { "type": "boolean" },
+        "skinType": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "productId", "author", "rating", "comment"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Promotional campaign discount voucher code.",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "maxLength": 32 },
+        "discountPercentage": { "type": "number" },
+        "minOrderAmount": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "description": { "type": "string", "maxLength": 256 }
+      },
+      "required": ["code", "discountPercentage", "isActive"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global storefront settings including WhatsApp number, logistics rates, and deposit accounts.",
+      "type": "object",
+      "properties": {
+        "whatsappNumber": { "type": "string", "maxLength": 32 },
+        "freeShippingThreshold": { "type": "number" },
+        "flatShippingRate": { "type": "number" },
+        "announcementText": { "type": "string", "maxLength": 256 },
+        "isAnnouncementActive": { "type": "boolean" },
+        "storeEmail": { "type": "string", "maxLength": 128 },
+        "storePhone": { "type": "string", "maxLength": 32 },
+        "bankDetails": { "type": "object" },
+        "easypaisaNumber": { "type": "string", "maxLength": 32 },
+        "easypaisaTitle": { "type": "string", "maxLength": 64 },
+        "jazzCashNumber": { "type": "string", "maxLength": 32 },
+        "jazzCashTitle": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["whatsappNumber", "freeShippingThreshold", "flatShippingRate"]
+    },
+    "ContactInquiry": {
+      "title": "ContactInquiry",
+      "description": "Client concierge inquiry or message submitted via contact form.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "subject": { "type": "string", "maxLength": 128 },
+        "message": { "type": "string", "maxLength": 2048 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "name", "email", "message"]
+    },
+    "NewsletterSubscriber": {
+      "title": "NewsletterSubscriber",
+      "description": "VIP journal subscriber email record.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 128 },
+        "subscribedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["email"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Authorized administrative user record.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "maxLength": 32 },
+        "addedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Public catalog of skincare formulations managed by admins."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Orders placed by customers and tracked by reference ID."
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Customer reviews and star ratings for skincare products."
+    },
+    "/coupons/{couponId}": {
+      "schema": "Coupon",
+      "description": "Promotional discount codes."
+    },
+    "/settings/{settingId}": {
+      "schema": "StoreSettings",
+      "description": "Storewide configurations (single document 'config')."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "ContactInquiry",
+      "description": "Customer concierge support inquiries."
+    },
+    "/subscribers/{subscriberId}": {
+      "schema": "NewsletterSubscriber",
+      "description": "Newsletter email subscribers."
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Authorized admin users for protected store management."
+    }
+  }
+}
